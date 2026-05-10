@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Georgia", serif;
+  
+  --color-brand-orange: #ea580c;
+  --color-brand-pink: #db2777;
+  --color-brand-purple: #581c87;
+  --color-brand-yellow: #facc15;
+  --color-brand-maroon: #450a0a;
+  
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+}
+
+@layer base {
+  body {
+    @apply bg-brand-maroon text-white antialiased selection:bg-brand-yellow selection:text-brand-maroon;
+  }
+}
+
+@layer utilities {
+  .logo-gradient {
+    background: linear-gradient(45deg, #facc15, #ea580c, #db2777);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .festive-gradient {
+    background: linear-gradient(135deg, #facc15 0%, #ea580c 50%, #db2777 100%);
+  }
+  
+  .glass-panel {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+  
+  .glass-card {
+    @apply bg-white/10 backdrop-blur-md border border-white/10;
+  }
+}
