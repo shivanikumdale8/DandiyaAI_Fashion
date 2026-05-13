@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Sparkles, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { DRESSES } from '../constants';
+import { getDresses } from '../lib/firebase/firestore';
 import DressCard from '../components/DressCard';
 import { Dress, RecommendationCriteria } from '../types';
 
@@ -16,21 +16,27 @@ export default function AIRecommendation() {
     style: 'Traditional'
   });
 
-  const handleRecommend = () => {
+  const handleRecommend = async () => {
     setLoading(true);
-    // Simulate AI processing
-    setTimeout(() => {
-      const filtered = DRESSES.filter(d => {
-        const matchColor = d.color === criteria.favoriteColor || Math.random() > 0.5;
+    setStep(5); // Show results section
+    
+    try {
+      const allDresses = await getDresses() as Dress[];
+      
+      // AI logic: Filter based on criteria
+      const filtered = allDresses.filter(d => {
         const matchStyle = d.style === criteria.style;
-        const matchBudget = d.price <= criteria.budget * 2; // Flexible budget
-        return (matchColor && matchStyle) || matchBudget;
+        const matchBudget = d.price <= criteria.budget * 2;
+        return matchStyle && matchBudget;
       }).slice(0, 3);
       
-      setRecommendations(filtered.length > 0 ? filtered : DRESSES.slice(0, 3));
+      // Fallback if no exact matches
+      setRecommendations(filtered.length > 0 ? filtered : allDresses.slice(0, 3));
+    } catch (error) {
+      console.error('Error getting recommendations:', error);
+    } finally {
       setLoading(false);
-      setStep(5); // Show results
-    }, 2000);
+    }
   };
 
   const steps = [

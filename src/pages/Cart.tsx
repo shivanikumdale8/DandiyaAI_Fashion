@@ -17,8 +17,13 @@ export default function Cart() {
   if (cartCount === 0) {
     return (
       <div className="pt-32 pb-24 px-6 flex flex-col items-center justify-center min-h-[70vh] text-center">
-        <div className="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-300 dark:text-gray-600 mb-8">
-          <ShoppingBag size={40} />
+        <div className="w-32 h-40 md:w-48 md:h-64 bg-gray-100 dark:bg-gray-800 rounded-3xl overflow-hidden mb-8 shadow-2xl">
+          <img 
+            src="https://images.unsplash.com/photo-1595967734995-5809d4cd5216?auto=format&fit=crop&q=80&w=800" 
+            alt="New Collection" 
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
         </div>
         <h1 className="text-3xl font-bold dark:text-white mb-4">Your bag is empty</h1>
         <p className="text-gray-500 max-w-sm mb-10">Looking for something traditional? Explore our latest Navratri collection and start adding items to your bag.</p>

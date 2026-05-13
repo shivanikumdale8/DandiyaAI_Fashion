@@ -4,7 +4,7 @@ export interface Dress {
   description: string;
   price: number;
   rentPrice: number;
-  rating: number;
+  rating?: number;
   image: string;
   category: 'Women' | 'Men' | 'Couple' | 'Kids';
   color: string;

@@ -1,15 +1,21 @@
-import { useState, useMemo } from 'react';
-import { Search, Filter, SlidersHorizontal, ChevronDown } from 'lucide-react';
-import { DRESSES } from '../constants';
+import { useState, useMemo, useEffect } from 'react';
+import { Search, Filter, SlidersHorizontal, ChevronDown, Loader2 } from 'lucide-react';
+import { Dress } from '../types';
+import { getDresses } from '../lib/firebase/firestore';
 import DressCard from '../components/DressCard';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
+import { useFirebase } from '../components/FirebaseProvider';
+import { Link } from 'react-router-dom';
 
 const CATEGORIES = ['All', 'Women', 'Men', 'Couple', 'Kids'];
 const COLORS = ['All', 'Pink', 'Purple', 'Orange', 'Maroon', 'Black', 'Yellow'];
 const STYLES = ['All', 'Traditional', 'Modern', 'Indo-Western'];
 
 export default function Collection() {
+  const { isAdmin } = useFirebase();
+  const [dresses, setDresses] = useState<Dress[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
   const [color, setColor] = useState('All');
@@ -17,8 +23,25 @@ export default function Collection() {
   const [sortBy, setSortBy] = useState('Featured');
   const [showFilters, setShowFilters] = useState(false);
 
+  useEffect(() => {
+    const fetchDresses = async () => {
+      try {
+        const data = await getDresses();
+        if (data) {
+          setDresses(data as Dress[]);
+        }
+      } catch (error) {
+        console.error('Error fetching dresses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDresses();
+  }, []);
+
   const filteredDresses = useMemo(() => {
-    return DRESSES.filter(dress => {
+    return dresses.filter(dress => {
       const matchSearch = dress.name.toLowerCase().includes(search.toLowerCase()) || 
                           dress.description.toLowerCase().includes(search.toLowerCase());
       const matchCategory = category === 'All' || dress.category === category;
@@ -31,7 +54,16 @@ export default function Collection() {
       if (sortBy === 'Rating') return b.rating - a.rating;
       return 0; // Featured or Default
     });
-  }, [search, category, color, style, sortBy]);
+  }, [dresses, search, category, color, style, sortBy]);
+
+  if (loading) {
+    return (
+      <div className="pt-32 pb-24 px-6 flex flex-col items-center justify-center min-h-[70vh]">
+        <Loader2 className="animate-spin text-brand-orange mb-4" size={40} />
+        <p className="text-gray-500 font-medium tracking-widest uppercase text-[10px]">Loading Collection...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="pt-32 pb-24 px-6 max-w-7xl mx-auto min-h-screen">
@@ -148,14 +180,23 @@ export default function Collection() {
           <div className="w-20 h-20 festive-gradient rounded-3xl flex items-center justify-center text-white mx-auto mb-8 opacity-20">
             <Filter size={40} />
           </div>
-          <h3 className="text-2xl font-bold mb-2 dark:text-white">No matches found</h3>
-          <p className="text-gray-500">Try adjusting your filters or search query.</p>
-          <button 
-            onClick={() => {setSearch(''); setCategory('All'); setColor('All'); setStyle('All');}}
-            className="mt-6 text-brand-orange font-bold underline"
-          >
-            Reset all filters
-          </button>
+          <h3 className="text-2xl font-bold mb-2 dark:text-white">No dresses found</h3>
+          <p className="text-gray-500 mb-6">Start by adding or seeding the database.</p>
+          {isAdmin ? (
+            <Link 
+              to="/admin" 
+              className="inline-flex px-8 py-4 bg-brand-purple rounded-2xl font-bold text-xs uppercase tracking-widest text-white hover:scale-105 transition-all shadow-xl"
+            >
+              Go to Admin Panel
+            </Link>
+          ) : (
+            <button 
+              onClick={() => {setSearch(''); setCategory('All'); setColor('All'); setStyle('All');}}
+              className="text-brand-orange font-bold underline"
+            >
+              Reset all filters
+            </button>
+          )}
         </div>
       )}
     </div>

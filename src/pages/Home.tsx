@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, Sparkles, ShoppingBag, CalendarRange, Users, Star, Quote } from 'lucide-react';
-import { DRESSES } from '../constants';
+import { ArrowRight, Sparkles, ShoppingBag, CalendarRange, Users, Star, Quote, Loader2 } from 'lucide-react';
+import { getDresses } from '../lib/firebase/firestore';
 import DressCard from '../components/DressCard';
+import { Dress } from '../types';
+import { useFirebase } from '../components/FirebaseProvider';
 
 const REVIEWS = [
   {
@@ -27,7 +29,9 @@ const REVIEWS = [
 ];
 
 export default function Home() {
-  const featuredDresses = DRESSES.filter(d => d.featured).slice(0, 3);
+  const { isAdmin } = useFirebase();
+  const [featuredDresses, setFeaturedDresses] = useState<Dress[]>([]);
+  const [loading, setLoading] = useState(true);
   const [heroIndex, setHeroIndex] = useState(0);
   const heroImages = [
     "https://images.unsplash.com/photo-1598124837130-99ca0925964f?auto=format&fit=crop&q=80&w=2000",
@@ -36,6 +40,25 @@ export default function Home() {
   ];
 
   useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const all = await getDresses() as Dress[];
+        if (all && all.length > 0) {
+          let featured = all.filter(d => d.featured);
+          if (featured.length === 0) {
+            featured = all.slice(0, 3);
+          }
+          setFeaturedDresses(featured.slice(0, 3));
+        }
+      } catch (error) {
+        console.error('Error fetching featured dresses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeatured();
+
     const timer = setInterval(() => {
       setHeroIndex((prev) => (prev + 1) % heroImages.length);
     }, 5000);
@@ -144,15 +167,39 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          {featuredDresses.map((dress) => (
-            <DressCard key={dress.id} dress={dress} />
-          ))}
+          {loading ? (
+            <div className="col-span-full py-12 flex justify-center">
+              <Loader2 className="animate-spin text-brand-orange" size={40} />
+            </div>
+          ) : featuredDresses.length > 0 ? (
+            featuredDresses.map((dress) => (
+              <DressCard key={dress.id} dress={dress} />
+            ))
+          ) : (
+            <div className="col-span-full py-12 text-center">
+              <p className="text-gray-500 mb-6">No dresses available yet.</p>
+              {isAdmin && (
+                <Link 
+                  to="/admin" 
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-brand-purple rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-brand-purple/90 transition-all text-white"
+                >
+                  Go to Admin Panel to Add Data
+                </Link>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
       {/* AI Recommendation Banner */}
       <section className="py-24 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/40 z-0"></div>
+        {/* Background Image Layer */}
+        <div 
+          className="absolute inset-0 z-0 bg-[url('https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&q=80&w=2000')] bg-cover bg-center bg-no-repeat grayscale-[0.3] brightness-[0.4]"
+        ></div>
+        {/* Overlay for readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent z-0"></div>
+        
         <div className="absolute top-0 right-0 w-1/2 h-full opacity-5 pointer-events-none">
           <svg viewBox="0 0 400 400" className="w-full h-full text-white fill-current">
             <circle cx="200" cy="200" r="150" stroke="currentColor" strokeWidth="2" fill="none" />

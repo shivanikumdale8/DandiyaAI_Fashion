@@ -8,7 +8,7 @@ export const DRESSES: Dress[] = [
     price: 3200,
     rentPrice: 650,
     rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&q=80&w=800',
+    image: 'https://images.unsplash.com/photo-1756483551860-2b312666ac53?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bmF2cmF0cmklMjBvdXRmaXRzfGVufDB8fDB8fHww',
     category: 'Women',
     color: 'Red',
     size: ['S', 'M', 'L'],
@@ -36,7 +36,7 @@ export const DRESSES: Dress[] = [
     price: 12500,
     rentPrice: 2500,
     rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1598124837130-99ca0925964f?auto=format&fit=crop&q=80&w=800',
+    image: 'https://plus.unsplash.com/premium_photo-1718570265593-8e46d7ef65ae?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fG5hdnJhdHJpJTIwb3V0Zml0c3xlbnwwfHwwfHx8MA%3D%3D',
     category: 'Couple',
     color: 'Yellow',
     size: ['M', 'L'],
@@ -68,6 +68,20 @@ export const DRESSES: Dress[] = [
     color: 'Purple',
     size: ['S', 'M', 'L'],
     style: 'Traditional'
+  },
+  {
+    id: '6',
+    name: 'Desert Rose Chaniya Choli',
+    description: 'A beautiful and vibrant traditional outfit perfect for Navratri dancing.',
+    price: 4500,
+    rentPrice: 850,
+    rating: 4.8,
+    image: 'https://images.unsplash.com/photo-1595967734995-5809d4cd5216?auto=format&fit=crop&q=80&w=800',
+    category: 'Women',
+    color: 'Pink',
+    size: ['S', 'M', 'L'],
+    style: 'Traditional',
+    featured: true
   }
 ];
 

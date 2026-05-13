@@ -1,7 +1,8 @@
 import { useParams, Link } from 'react-router-dom';
-import { useState } from 'react';
-import { Star, ShoppingCart, CalendarRange, Heart, ArrowLeft, Shield, Truck, RefreshCcw, Info } from 'lucide-react';
-import { DRESSES } from '../constants';
+import { useState, useEffect } from 'react';
+import { Star, ShoppingCart, CalendarRange, Heart, ArrowLeft, Shield, Truck, RefreshCcw, Info, Loader2 } from 'lucide-react';
+import { Dress } from '../types';
+import { getDressById } from '../lib/firebase/firestore';
 import { useCart } from '../App';
 import { motion } from 'motion/react';
 import { cn } from '../lib/utils';
@@ -10,8 +11,35 @@ export default function DressDetails() {
   const { id } = useParams();
   const { addToCart } = useCart();
   const [selectedSize, setSelectedSize] = useState('M');
-  
-  const dress = DRESSES.find(d => d.id === id);
+  const [dress, setDress] = useState<Dress | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDress = async () => {
+      if (!id) return;
+      try {
+        const data = await getDressById(id);
+        if (data) {
+          setDress(data as Dress);
+        }
+      } catch (error) {
+        console.error('Error fetching dress details:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDress();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="pt-32 pb-24 px-6 flex flex-col items-center justify-center min-h-[70vh]">
+        <Loader2 className="animate-spin text-brand-orange mb-4" size={40} />
+        <p className="text-gray-500 font-medium tracking-widest uppercase text-[10px]">Fetching Details...</p>
+      </div>
+    );
+  }
 
   if (!dress) {
     return (

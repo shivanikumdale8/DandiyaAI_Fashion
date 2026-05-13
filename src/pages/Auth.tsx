@@ -1,10 +1,31 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Lock, User, ArrowRight, Github, Chrome } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Mail, Lock, User, ArrowRight, Github, Chrome, Loader2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useFirebase } from '../components/FirebaseProvider';
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
+  const { signIn, user } = useFirebase();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      await signIn();
+      navigate('/');
+    } catch (error) {
+      console.error('Sign in failed:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (user) {
+    navigate('/');
+    return null;
+  }
 
   return (
     <div className="pt-32 pb-24 px-6 min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -44,18 +65,20 @@ export default function Auth() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <button className="flex items-center justify-center gap-2 p-3 border dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors dark:text-white">
-                  <Chrome size={18} /> Google
-                </button>
-                <button className="flex items-center justify-center gap-2 p-3 border dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors dark:text-white">
-                  <Github size={18} /> Github
+              <div className="flex flex-col gap-4">
+                <button 
+                  onClick={handleGoogleSignIn}
+                  disabled={loading}
+                  className="flex items-center justify-center gap-2 p-4 border-2 dark:border-gray-700 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all dark:text-white font-bold"
+                >
+                  {loading ? <Loader2 size={18} className="animate-spin" /> : <Chrome size={18} />} 
+                  Continue with Google
                 </button>
               </div>
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-100 dark:border-gray-700"></span></div>
-                <div className="relative flex justify-center text-xs uppercase"><span className="bg-white dark:bg-gray-800 px-2 text-gray-400">Or continue with</span></div>
+                <div className="relative flex justify-center text-xs uppercase"><span className="bg-white dark:bg-gray-800 px-2 text-gray-400">Or use email</span></div>
               </div>
 
               <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>

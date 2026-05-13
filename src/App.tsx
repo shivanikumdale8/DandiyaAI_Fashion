@@ -14,6 +14,7 @@ import AIRecommendation from './pages/AIRecommendation';
 import DressDetails from './pages/DressDetails';
 import Auth from './pages/Auth';
 import Cart from './pages/Cart';
+import Admin from './pages/Admin';
 import { Dress } from './types';
 
 interface CartItem extends Dress {
@@ -94,6 +95,7 @@ export default function App() {
                 <Route path="/dress/:id" element={<DressDetails />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/cart" element={<Cart />} />
+                <Route path="/admin" element={<Admin />} />
               </Routes>
             </PageWrapper>
           </main>

@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingBag, Search, User, Menu, X, Sparkles, Moon, Sun } from 'lucide-react';
+import { ShoppingBag, Search, User, Menu, X, Sparkles, Moon, Sun, LogOut, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useCart } from '../App';
 import { NAV_LINKS } from '../constants';
 import { cn } from '../lib/utils';
+import { useFirebase } from '../components/FirebaseProvider';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const { cartCount } = useCart();
+  const { user, profile, isAdmin, signOut } = useFirebase();
   const location = useLocation();
 
   useEffect(() => {
@@ -45,24 +47,56 @@ export default function Navbar() {
               key={link.path}
               to={link.path}
               className={cn(
-                'text-sm font-medium transition-all hover:opacity-100',
-                location.pathname === link.path ? 'opacity-100 border-b-2 border-brand-yellow pb-1' : 'opacity-70'
+                'text-sm font-medium transition-all hover:opacity-100 uppercase tracking-widest text-[10px] font-bold',
+                location.pathname === link.path ? 'opacity-100 text-brand-yellow' : 'opacity-70'
               )}
             >
               {link.name}
             </Link>
           ))}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className={cn(
+                'text-sm font-medium transition-all hover:opacity-100 uppercase tracking-widest text-[10px] font-bold text-brand-pink',
+                location.pathname === '/admin' ? 'opacity-100 text-brand-pink underline underline-offset-8' : 'opacity-70'
+              )}
+            >
+              Admin
+            </Link>
+          )}
         </div>
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-6">
-          <Link to="/auth" className="opacity-70 hover:opacity-100 transition-opacity">
-            <User size={20} />
-          </Link>
-          <Link to="/cart" className="relative group opacity-70 hover:opacity-100 transition-opacity">
+          {user ? (
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <img 
+                  src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`} 
+                  alt="Profile" 
+                  className="w-8 h-8 rounded-full border border-white/20"
+                />
+                <span className="text-[10px] font-bold text-white uppercase tracking-wider">{user.displayName?.split(' ')[0]}</span>
+              </div>
+              <button 
+                onClick={() => signOut()}
+                className="opacity-70 hover:opacity-100 transition-opacity text-white"
+                title="Logout"
+              >
+                <LogOut size={18} />
+              </button>
+            </div>
+          ) : (
+            <Link to="/auth" className="opacity-70 hover:opacity-100 transition-opacity text-white">
+              <User size={20} />
+            </Link>
+          )}
+          
+          <Link to="/cart" className="relative group opacity-70 hover:opacity-100 transition-opacity text-white">
             <ShoppingBag size={20} />
             {cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-brand-pink text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
+              <span className="absolute -top-2 -right-2 bg-brand-pink text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                 {cartCount}
               </span>
             )}
@@ -93,18 +127,33 @@ export default function Navbar() {
                   key={link.path}
                   to={link.path}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-lg font-medium text-gray-600 dark:text-gray-300 hover:text-brand-orange"
+                  className="text-lg font-medium text-gray-600 dark:text-gray-300 hover:text-brand-orange uppercase tracking-widest font-bold text-xs"
                 >
                   {link.name}
                 </Link>
               ))}
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-lg font-medium text-brand-pink hover:text-brand-pink/80 uppercase tracking-widest font-bold text-xs"
+                >
+                  Admin Panel
+                </Link>
+              )}
               <div className="flex items-center gap-6 pt-4 border-t dark:border-gray-800">
                 <button onClick={toggleDarkMode}>
                   {isDarkMode ? <Sun size={24} /> : <Moon size={24} />}
                 </button>
-                <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
-                  <User size={24} />
-                </Link>
+                {user ? (
+                  <button onClick={() => { signOut(); setIsMobileMenuOpen(false); }}>
+                    <LogOut size={24} className="text-gray-600 dark:text-gray-300" />
+                  </button>
+                ) : (
+                  <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
+                    <User size={24} />
+                  </Link>
+                )}
                 <Link to="/cart" className="relative" onClick={() => setIsMobileMenuOpen(false)}>
                   <ShoppingBag size={24} />
                   {cartCount > 0 && (
